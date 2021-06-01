@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="abccb74e-fe58-492f-99fc-8b2a652957a8">
+		<http:listener-connection host="localhost" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="9dd187d5-d14b-4fea-9b00-0f99b40df9a6" >
+		<db:my-sql-connection host="congo.c3w6upfzlwwe.us-west-1.rds.amazonaws.com" port="3306" user="mulesoft" password="mulesoft" database="congo" />
+	</db:config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="aadcb5ab-1ffb-47ab-b951-b05e273fe91f" >
+		<salesforce:basic-connection username="eyobageta@gmail.com" password="family1625" securityToken="ZjTLa9z70WN3UF3dRTI3eiEl9" />
+	</salesforce:sfdc-config>
+	<flow name="salesforce_integrationFlow" doc:id="e3a3f230-1690-4a82-8f7b-83b78eb4ee31" >
+		<http:listener doc:name="Listener" doc:id="60cdff51-71ae-472a-933b-f93676d04af3" config-ref="HTTP_Listener_config" path="/salesforce"/>
+		<db:select doc:name="Select" doc:id="e664d3d0-059b-41cf-802b-e9029f76a0c8" config-ref="Database_Config">
+			<db:sql ><![CDATA[select*from contacts]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="19db7e4a-4650-411e-965c-0934fb75b62f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map(item,index) ->{
+	FirstName: item.FirstName,
+	LastName: item.LastName,
+	Email: item.Email,
+	Company: item.Copany
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<batch:job jobName="salesforce_integrationBatch_Job" doc:id="d4cf5544-688c-4ebb-9716-5da7d2703a11" >
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="98413538-c8b0-4dc1-939d-78159675da18" >
+					<salesforce:create type="Lead" doc:name="Create" doc:id="ae624296-e2c4-4e6d-a9a1-181d77554604" config-ref="Salesforce_Config" />
+				</batch:step>
+			</batch:process-records>
+		</batch:job>
+	</flow>
+</mule>
