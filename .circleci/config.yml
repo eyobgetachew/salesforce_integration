@@ -12,22 +12,17 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: 'mulesoft-ci-cd-{{ checksum "pom.xml" }}'
+          key: 'dep-cache-{{ checksum "pom.xml" }}'
+      - run: mvn clean packagr
       - save_cache:
           paths:
-            - ~/.m2
-          key: 'mulesoft-ci-cd-{{ checksum "pom.xml" }}'
+            - ~/target/repository
+          key: 'dep-cache-{{ checksum "pom.xml" }}'
       - run:
           name: Build
           command: |
             mvn clean compile -s settings.xml
-      - run:
-          command: |
-            mkdir -p /tmp/core_dumps
-            cp core.* /tmp/core_dumps
-            when: on_fail
-      - store_artifacts:
-          path: /tmp/core_dumps
+      - run: mkdir artifacts ; cp target/*.jar artifacts/application.jar
       - run:
           name: mUnit Test
           command: |
