@@ -4,7 +4,7 @@ workflows:
   build-deploy:
     jobs:
       - build:
-          context: mule
+          context: salesforce_integration
 jobs:
   build:
     docker:
