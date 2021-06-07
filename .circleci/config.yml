@@ -24,14 +24,6 @@ jobs:
             mvn clean compile -s settings.xml
       - run: mkdir artifacts ; cp target/*.jar artifacts/application.jar
       - run:
-          name: mUnit Test
-          command: |
-            mvn clean test -s settings.xml
-      - run:
-          name: artifactory deployment
-          command: |
-            mvn clean deploy -s settings.xml
-      - run:
           name: cloudhub deployment
           command: |
             mvn -s settings.xml clean deploy -DmuleDeploy\-DMULE_ENV=${MULE_ENV}\-DMULE_VERSION=${MULE_VERSION}\-DMULE_APP_NAME=${MULE_APP_NAME}\-DMULE_WORKER_TYPE=${MULE_WORKER_TYPE}\-DMULE_WORKER=${MULE_WORKER}\-DMULE_USERNAME=${MULE_USERNAME}\-Dcentral_password=${central_password}\-Dmule_repo_user=${mule_repo_user}\-Dmule_repo_pass=${mule_repo_pass}
