@@ -4,7 +4,7 @@ workflows:
   build-deploy:
     jobs:
       - build:
-          context: salesforce_integration
+          context: org-global
 jobs:
   build:
     docker:
